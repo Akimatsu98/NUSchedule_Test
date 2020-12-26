@@ -1,5 +1,3 @@
-package main.java;
-
 public class Module {
     public String ModuleCode;
     public String TimeSlots;

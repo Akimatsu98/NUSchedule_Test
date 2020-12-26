@@ -1,5 +1,3 @@
-package main.java;
-
 public class Tutorial {
     private String codeName;
     private final Pair<Integer, Pair<Integer, Integer>> time;
