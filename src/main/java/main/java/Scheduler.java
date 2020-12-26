@@ -6,7 +6,7 @@ import java.util.PriorityQueue;
 
 public class Scheduler {
 
-    private final ArrayList<Lecture> lectures; // sorted by starting time and day
+    private final ArrayList<Lecture> lectures;
 
     private final PriorityQueue<ArrayList<Pair<Lecture, Pair<Integer, Pair<Integer, Integer>>>>> lectureResultList = new PriorityQueue<>(new lectureComparator());
 
@@ -20,7 +20,6 @@ public class Scheduler {
 
     private LectureSetDifferentiator df = new LectureSetDifferentiator();
 
-    // temporary list storage
     ArrayList<Pair<Lecture, Pair<Integer, Pair<Integer, Integer>>>> llist = new ArrayList<>();
 
     ArrayList<Tutorial> tlist = new ArrayList<>();
@@ -30,7 +29,7 @@ public class Scheduler {
         this.lectures = lectures;
         for (int i = 0; i < 5; i++) {
             for (int j = 0; j < 24; j++) {
-                slots[i][j] = false; // false means not taken
+                slots[i][j] = false;
             }
         }
     }
@@ -114,7 +113,6 @@ public class Scheduler {
             }
             System.out.println("Tutorial Info:");
             printTutorialInfo((ArrayList<Tutorial>) iterator.next());
-            if (lectSetCount == 16) break; // give only 15 results
             System.out.println("");
         }
 

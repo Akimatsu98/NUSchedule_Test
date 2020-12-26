@@ -19,15 +19,13 @@ public class LectureSetDifferentiator {
             temp.add(item.getLeft());
         }
         for (ArrayList<Lecture> itemList : list) {
-            //if (itemList.size() != temp.size()) return false;
             int iterator = 0;
             for (Lecture item : itemList) {
                 if (!temp.contains(item)) {
                     break;
-                } else if (iterator == temp.size() - 1) {
+                } else if (iterator++ == temp.size() - 1) {
                     return true;
                 }
-                iterator++;
             }
         }
         return false;
