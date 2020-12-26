@@ -1,20 +1,25 @@
 package main.java;
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.Iterator;
+import java.util.PriorityQueue;
 
 public class Scheduler {
 
     private final ArrayList<Lecture> lectures; // sorted by starting time and day
 
-    private ArrayList<ArrayList<Pair<Lecture, Pair<Integer, Pair<Integer, Integer>>>>> lectureResultList = new ArrayList<>(); // stores max 10 results
+    private final PriorityQueue<ArrayList<Pair<Lecture, Pair<Integer, Pair<Integer, Integer>>>>> lectureResultList = new PriorityQueue<>(new lectureComparator());
 
-    private ArrayList<ArrayList<Tutorial>> tutorialResultList = new ArrayList<>();
+    private final PriorityQueue<ArrayList<Tutorial>> tutorialResultList = new PriorityQueue<>(new tutorialComparator());
 
-    private boolean[][] slots = new boolean[5][24]; // day 0 means Monday
+    private final boolean[][] slots = new boolean[5][24]; // day 0 means Monday
 
-    private HashSet<Lecture> lhs = new HashSet<>();
+    private final HashSet<Lecture> lhs = new HashSet<>();
 
     private int maxSizeFound = -100;
+
+    private LectureSetDifferentiator df = new LectureSetDifferentiator();
 
     // temporary list storage
     ArrayList<Pair<Lecture, Pair<Integer, Pair<Integer, Integer>>>> llist = new ArrayList<>();
@@ -32,23 +37,23 @@ public class Scheduler {
     }
 
     // Issues:
-    // 1. a single module does not require multiple lecture/tutorial slots
-    // 2. preferences not considered
+    // 1. assume that a single module does not require multiple lecture/tutorial slots
+    // 2. module preferences not considered
     // 3. prioritise combinations that are as distinct
     // as possible: different sets of modules, not just minor tutorial slots difference
     // 4. reduce and limit the number of combinations displayed
+    // 5. assume always take max number of modules if possible
     void schedule_modules(int cur, int maxMC) {
         if ((maxMC <= 0 || cur == lectures.size()) && maxSizeFound <= llist.size()) {
+            if (df.contains(llist)) return;
             maxSizeFound = llist.size();
-            if (lectureResultList.size() <= 1500000) {
-                ArrayList<Pair<Lecture, Pair<Integer, Pair<Integer, Integer>>>> llist_new = deepCopyLecture(llist);
+            if (lectureResultList.size() <= 150000) {
+                ArrayList<Pair<Lecture, Pair<Integer, Pair<Integer, Integer>>>> llist_new = new ArrayList<>(llist);
                 lectureResultList.add(llist_new);
+                df.add(llist_new);
             }
-            if (tutorialResultList.size() <= 1500000) {
-                ArrayList<Tutorial> tList_new = new ArrayList<>();
-                for (Tutorial t : tlist) {
-                    tList_new.add(t);
-                }
+            if (tutorialResultList.size() <= 150000) {
+                ArrayList<Tutorial> tList_new = new ArrayList<>(tlist);
                 tutorialResultList.add(tList_new);
             }
             return;
@@ -61,8 +66,8 @@ public class Scheduler {
                 for (Pair<Integer, Pair<Integer, Integer>> time : lecture.getTimes()) {
                     int date = time.getLeft();
                     Pair<Integer, Integer> timeslot = time.getRight();
-                    if (!checkConflict(date, timeslot, slots)) {
-                        Pair<Lecture, Pair<Integer, Pair<Integer, Integer>>> lectureCandidate = new Pair(lecture, time);
+                    if (checkConflict(date, timeslot, slots)) {
+                        Pair lectureCandidate = new Pair(lecture, time);
                         llist.add(lectureCandidate);
                         lhs.add(lecture);
                         for (int a = timeslot.getLeft(); a <= timeslot.getRight() - 1; a++) slots[date][a] = true;
@@ -71,7 +76,7 @@ public class Scheduler {
                             Pair<Integer, Pair<Integer, Integer>> tslot = t.getTime();
                             int tdate = tslot.getLeft();
                             Pair<Integer, Integer> ttimeslot = tslot.getRight();
-                            if (!checkConflict(tdate, ttimeslot, slots)) {
+                            if (checkConflict(tdate, ttimeslot, slots)) {
                                 tlist.add(t);
                                 for (int a = ttimeslot.getLeft(); a <= ttimeslot.getRight() - 1; a++)
                                     slots[tdate][a] = true;
@@ -88,32 +93,21 @@ public class Scheduler {
                 }
             }
         }
-        return;
-    }
-
-    private ArrayList<Pair<Lecture, Pair<Integer, Pair<Integer, Integer>>>> deepCopyLecture(ArrayList<Pair<Lecture, Pair<Integer, Pair<Integer, Integer>>>> llist) {
-        ArrayList<Pair<Lecture, Pair<Integer, Pair<Integer, Integer>>>> newList = new ArrayList<>();
-        for (Pair<Lecture, Pair<Integer, Pair<Integer, Integer>>> a : llist) {
-            newList.add(a);
-        }
-        return newList;
     }
 
 
     static boolean checkConflict(int date, Pair<Integer, Integer> time, boolean[][] slots) {
-        boolean isConflict = false;
         for (int a = time.getLeft(); a <= time.getRight() - 1; a++) {
             if (slots[date][a]) {
-                isConflict = true;
-                return isConflict;
+                return false;
             }
         }
-        return isConflict;
+        return true;
     }
 
     void printModuleInfo() {
         int lectSetCount = 0;
-        int iterator = 0;
+        Iterator iterator = tutorialResultList.iterator();
         for (ArrayList<Pair<Lecture, Pair<Integer, Pair<Integer, Integer>>>> a : lectureResultList) {
             System.out.println("Lecture Info:");
             lectSetCount++;
@@ -121,9 +115,8 @@ public class Scheduler {
                 printLectureInfo(b);
             }
             System.out.println("Tutorial Info:");
-            printTutorialInfo(tutorialResultList.get(iterator));
-            iterator++;
-            if (lectSetCount == 160000) break;
+            printTutorialInfo((ArrayList<Tutorial>) iterator.next());
+            if (lectSetCount == 16) break; // give only 15 results
             System.out.println("");
         }
 
@@ -137,6 +130,6 @@ public class Scheduler {
     }
 
     private void printLectureInfo(Pair<Lecture, Pair<Integer, Pair<Integer, Integer>>> a) {
-        System.out.println(a.getLeft().getCodeName() + ": On Day " + a.getRight().getLeft() + " " + a.getRight().getRight().toString());
+        System.out.println(a.getLeft().getCodeName() + " lecture: On Day " + a.getRight().getLeft() + " " + a.getRight().getRight().toString());
     }
 }
