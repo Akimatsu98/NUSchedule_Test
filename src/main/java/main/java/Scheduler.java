@@ -56,7 +56,7 @@ public class Scheduler {
             return;
         }
 
-        if (lectures.subList(cur, lectures.size()).size() + llist.size() < maxSizeFound) return; // pruning heuristic
+        if (lectures.subList(cur, lectures.size()).size() + llist.size() < maxSizeFound) return; 
 
         for (Lecture lecture : lectures.subList(cur, lectures.size())) {
             if (!lhs.contains(lecture)) {
