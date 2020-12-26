@@ -43,18 +43,17 @@ public class Scheduler {
     // 4. reduce and limit the number of combinations displayed (Solved)
     // 5. assume always take max number of modules if possible
     void schedule_modules(int cur, int maxMC) {
+
+        if (lectureResultList.size() == 30) return;
+
         if ((maxMC <= 0 || cur == lectures.size()) && maxSizeFound <= llist.size()) {
             if (df.contains(llist)) return;
             maxSizeFound = llist.size();
-            if (lectureResultList.size() <= 150000) {
-                ArrayList<Pair<Lecture, Pair<Integer, Pair<Integer, Integer>>>> llist_new = new ArrayList<>(llist);
-                lectureResultList.add(llist_new);
-                df.add(llist_new);
-            }
-            if (tutorialResultList.size() <= 150000) {
-                ArrayList<Tutorial> tList_new = new ArrayList<>(tlist);
-                tutorialResultList.add(tList_new);
-            }
+            ArrayList<Pair<Lecture, Pair<Integer, Pair<Integer, Integer>>>> llist_new = new ArrayList<>(llist);
+            lectureResultList.add(llist_new);
+            df.add(llist_new);
+            ArrayList<Tutorial> tList_new = new ArrayList<>(tlist);
+            tutorialResultList.add(tList_new);
             return;
         }
 
