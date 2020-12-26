@@ -37,11 +37,11 @@ public class Scheduler {
     }
 
     // Issues:
-    // 1. assume that a single module does not require multiple lecture/tutorial slots
-    // 2. module preferences not considered
+    // 1. assume that a single module does not require multiple lecture/tutorial slots (Unsolved)
+    // 2. module preferences not considered (Solved)
     // 3. prioritise combinations that are as distinct
-    // as possible: different sets of modules, not just minor tutorial slots difference
-    // 4. reduce and limit the number of combinations displayed
+    // as possible: different sets of modules, not just minor tutorial slots difference (Solved)
+    // 4. reduce and limit the number of combinations displayed (Solved)
     // 5. assume always take max number of modules if possible
     void schedule_modules(int cur, int maxMC) {
         if ((maxMC <= 0 || cur == lectures.size()) && maxSizeFound <= llist.size()) {
